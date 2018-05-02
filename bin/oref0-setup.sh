@@ -631,27 +631,27 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
             echo bluez v ${bluetoothdversion} already installed
         fi
         echo Installing prerequisites and configs for local-only hotspot
-        apt-get install -y hostapd dnsmasq || die "Couldn't install hostapd dnsmasq"
-        ls /etc/dnsmasq.conf.bak 2>/dev/null || mv /etc/dnsmasq.conf /etc/dnsmasq.conf.bak
-        cp $HOME/src/oref0/headless/dnsmasq.conf /etc/dnsmasq.conf || die "Couldn't copy dnsmasq.conf"
-        ls /etc/hostapd/hostapd.conf.bak 2>/dev/null || mv /etc/hostapd/hostapd.conf /etc/hostapd/hostapd.conf.bak
-        cp $HOME/src/oref0/headless/hostapd.conf /etc/hostapd/hostapd.conf || die "Couldn't copy hostapd.conf"
-        sed -i.bak -e "s|DAEMON_CONF=$|DAEMON_CONF=/etc/hostapd/hostapd.conf|g" /etc/init.d/hostapd
-        cp $HOME/src/oref0/headless/interfaces.ap /etc/network/ || die "Couldn't copy interfaces.ap"
-        cp /etc/network/interfaces /etc/network/interfaces.client || die "Couldn't copy interfaces.client"
+        sudo apt-get install -y hostapd dnsmasq || die "Couldn't install hostapd dnsmasq"
+        ls /etc/dnsmasq.conf.bak 2>/dev/null || sudo mv /etc/dnsmasq.conf /etc/dnsmasq.conf.bak
+        sudo cp $HOME/src/oref0/headless/dnsmasq.conf /etc/dnsmasq.conf || die "Couldn't copy dnsmasq.conf"
+        ls /etc/hostapd/hostapd.conf.bak 2>/dev/null || sudo mv /etc/hostapd/hostapd.conf /etc/hostapd/hostapd.conf.bak
+        sudo cp $HOME/src/oref0/headless/hostapd.conf /etc/hostapd/hostapd.conf || die "Couldn't copy hostapd.conf"
+        sudo sed -i.bak -e "s|DAEMON_CONF=$|DAEMON_CONF=/etc/hostapd/hostapd.conf|g" /etc/init.d/hostapd
+        sudo cp $HOME/src/oref0/headless/interfaces.ap /etc/network/ || die "Couldn't copy interfaces.ap"
+        sudo cp /etc/network/interfaces /etc/network/interfaces.client || die "Couldn't copy interfaces.client"
         #Stop automatic startup of hostapd & dnsmasq
-        update-rc.d -f hostapd remove
-        update-rc.d -f dnsmasq remove
+        sudo update-rc.d -f hostapd remove
+        sudo update-rc.d -f dnsmasq remove
         # Edit /etc/hostapd/hostapd.conf for wifi using Hostname
-        sed -i.bak -e "s/ssid=OpenAPS/ssid=${HOSTNAME}/" /etc/hostapd/hostapd.conf
+        sudo sed -i.bak -e "s/ssid=OpenAPS/ssid=${HOSTNAME}/" /etc/hostapd/hostapd.conf
         # Add Commands to /etc/rc.local
         # Interrupt Kernel Messages
         if ! grep -q 'sudo dmesg -n 1' /etc/rc.local; then
-          sed -i.bak -e '$ i sudo dmesg -n 1' /etc/rc.local
+          sudo sed -i.bak -e '$ i sudo dmesg -n 1' /etc/rc.local
         fi
         # Add to /etc/rc.local to check if in hotspot mode and turn back to client mode during bootup
         if ! grep -q 'cp /etc/network/interfaces.client /etc/network/interfaces' /etc/rc.local; then
-          sed -i.bak -e "$ i if [ -f /etc/network/interfaces.client ]; then\n\tif  grep -q '#wpa-' /etc/network/interfaces; then\n\t\tsudo ifdown wlan0\n\t\tsudo cp /etc/network/interfaces.client /etc/network/interfaces\n\t\tsudo ifup wlan0\n\tfi\nfi" /etc/rc.local || die "Couldn't modify /etc/rc.local"
+          sudo sed -i.bak -e "$ i if [ -f /etc/network/interfaces.client ]; then\n\tif  grep -q '#wpa-' /etc/network/interfaces; then\n\t\tsudo ifdown wlan0\n\t\tsudo cp /etc/network/interfaces.client /etc/network/interfaces\n\t\tsudo ifup wlan0\n\tfi\nfi" /etc/rc.local || die "Couldn't modify /etc/rc.local"
         fi
     fi
 
